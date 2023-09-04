@@ -5,6 +5,9 @@ import schedule
 import time
 
 def req():
+    
+    start_time = time.perf_counter()  # Marca o tempo de início da solicitação
+
     data_atual = datetime.date.today().strftime('%m-%d-%Y')
     data_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(f"Requisição feita em {data_hora}")
@@ -12,6 +15,10 @@ def req():
 
     response = requests.get(url)
     
+    start_time = time.perf_counter() 
+    end_time = time.perf_counter()  
+    elapsed_time = end_time - start_time  
+
     connection = None
     cursor = None  
     
@@ -26,7 +33,7 @@ def req():
             for item in data['value']:
                 cotacaoCompra = str(item['cotacaoCompra'])
                 cotacaoVenda = str(item['cotacaoVenda'])
-                dataHoraCotacao = item['dataHoraCotacao']  # A data e hora em formato de string
+                dataHoraCotacao = item['dataHoraCotacao']
                 tipoBoletim = item['tipoBoletim']
     
                 sql = "INSERT INTO ETL_OLINDA_EURO (cotacaoCompra, cotacaoVenda, dataHoraCotacao) VALUES (:1, :2, :3)"
@@ -35,6 +42,7 @@ def req():
                 connection.commit()
                 
             print("Dados inseridos com sucesso no Oracle.")
+            print(f"Tempo decorrido para a solicitação: {elapsed_time} segundos")
             
         except Exception as e:
             
@@ -51,9 +59,12 @@ def req():
         print("Erro na requisição. Código de status:", response.status_code)
 
 
-schedule.every().day.at("13:20").do(req)
-
+def is_fim_de_semana():
+    hoje = datetime.date.today()
+    return hoje.weekday() in [5, 6]
 
 while True:
-    schedule.run_pending()
+    
+    if not is_fim_de_semana():
+        schedule.run_pending()
     time.sleep(1)
