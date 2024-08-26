@@ -26,7 +26,7 @@ def req():
         data = response.json()
        
         try:
-            connection = oracledb.connect(user="dwu", password="S7hHmdmz28i2", host="cloud.upquery.com", port=1521, service_name="capital")
+            connection = oracledb.connect(user="", password="", host="", port=, service_name="")
         
             cursor = connection.cursor()
     
